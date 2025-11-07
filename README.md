@@ -1,7 +1,9 @@
-# MCP Weather Server
+# MCP NUTRITION Server
 
 A ready-to-use implementation of the Model Context Protocol (MCP) that extends Claude with real-time weather data capabilities.
 
+
+--donot apply--
 [![MCP Demo](https://img.youtube.com/vi/Y4bpWRLdRoA/0.jpg)](https://youtu.be/Y4bpWRLdRoA?si=TVuUyR79K_N-Zxoo)
 
 ## What is MCP?
@@ -70,7 +72,7 @@ Once connected, Claude can:
    ```json
    {
      "mcpServers": {
-       "weather": {
+       "NUTRITION": {
          "command": "node",
          "args": [
            "/absolute/path/to/your/mcp-weather-server/build/index.js"

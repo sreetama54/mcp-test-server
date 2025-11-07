@@ -2,12 +2,13 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
 
-const NWS_API_BASE = "https://api.weather.gov";
-const USER_AGENT = "weather-app/1.0";
+// Base config
+const NUTRITION_API_BASE = "https://api.api-ninjas.com/v1/nutrition";
+const API_KEY = "VFyI2ioAU/JGxhcU2qDh6A==kpQMaygy5VXvu92u"; // safer to store key in env var
 
-// Create server instance
+// Create MCP server instance
 const server = new McpServer({
-  name: "weather",
+  name: "nutrition",
   version: "1.0.0",
   capabilities: {
     resources: {},
@@ -15,213 +16,117 @@ const server = new McpServer({
   },
 });
 
-// Helper function for making NWS API requests
-async function makeNWSRequest<T>(url: string): Promise<T | null> {
-    const headers = {
-      "User-Agent": USER_AGENT,
-      Accept: "application/geo+json",
-    };
-  
-    try {
-      const response = await fetch(url, { headers });
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      return (await response.json()) as T;
-    } catch (error) {
-      console.error("Error making NWS request:", error);
-      return null;
+//npm install @modelcontextprotocol/sdk
+
+// Helper for Nutrition API requests
+async function makeNutritionRequest<T>(query: string): Promise<T | null> {
+  const url = `${NUTRITION_API_BASE}?query=${encodeURIComponent(query)}`;
+  const headers = {
+    "X-Api-Key": API_KEY || "",
+    Accept: "application/json",
+  };
+
+  try {
+    const response = await fetch(url, { headers });
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
+    return (await response.json()) as T;
+  } catch (error) {
+    console.error("Error fetching Nutrition API:", error);
+    return null;
   }
-  
-  interface AlertFeature {
-    properties: {
-      event?: string;
-      areaDesc?: string;
-      severity?: string;
-      status?: string;
-      headline?: string;
-    };
-  }
-  
-  // Format alert data
-  function formatAlert(feature: AlertFeature): string {
-    const props = feature.properties;
-    return [
-      `Event: ${props.event || "Unknown"}`,
-      `Area: ${props.areaDesc || "Unknown"}`,
-      `Severity: ${props.severity || "Unknown"}`,
-      `Status: ${props.status || "Unknown"}`,
-      `Headline: ${props.headline || "No headline"}`,
-      "---",
-    ].join("\n");
-  }
-  
-  interface ForecastPeriod {
-    name?: string;
-    temperature?: number;
-    temperatureUnit?: string;
-    windSpeed?: string;
-    windDirection?: string;
-    shortForecast?: string;
-  }
-  
-  interface AlertsResponse {
-    features: AlertFeature[];
-  }
-  
-  interface PointsResponse {
-    properties: {
-      forecast?: string;
-    };
-  }
-  
-  interface ForecastResponse {
-    properties: {
-      periods: ForecastPeriod[];
-    };
-  }
+}
 
-  // Register weather tools
+// Define Nutrition response type
+interface NutritionItem {
+  name: string;
+  serving_size_g: number;
+  fat_total_g: number;
+  fat_saturated_g: number;
+  sodium_mg: number;
+  potassium_mg: number;
+  cholesterol_mg: number;
+  carbohydrates_total_g: number;
+  fiber_g: number;
+  sugar_g: number;
+}
+
+// Format function
+function formatNutrition(item: NutritionItem): string {
+  return [
+    `🍽️ ${item.name}`,
+    `Serving Size: ${item.serving_size_g}g`,
+    `Carbs: ${item.carbohydrates_total_g}g (Sugar: ${item.sugar_g}g, Fiber: ${item.fiber_g}g)`,
+    `Fat: ${item.fat_total_g}g (Saturated: ${item.fat_saturated_g}g)`,
+    `Cholesterol: ${item.cholesterol_mg}mg`,
+    `Sodium: ${item.sodium_mg}mg`,
+    `Potassium: ${item.potassium_mg}mg`,
+    "---",
+  ].join("\n");
+}
+
+// Register Nutrition MCP tool
 server.tool(
-    "get-alerts",
-    "Get weather alerts for a state",
-    {
-      state: z.string().length(2).describe("Two-letter state code (e.g. CA, NY)"),
-    },
-    async ({ state }) => {
-      const stateCode = state.toUpperCase();
-      const alertsUrl = `${NWS_API_BASE}/alerts?area=${stateCode}`;
-      const alertsData = await makeNWSRequest<AlertsResponse>(alertsUrl);
-  
-      if (!alertsData) {
-        return {
-          content: [
-            {
-              type: "text",
-              text: "Failed to retrieve alerts data",
-            },
-          ],
-        };
-      }
-  
-      const features = alertsData.features || [];
-      if (features.length === 0) {
-        return {
-          content: [
-            {
-              type: "text",
-              text: `No active alerts for ${stateCode}`,
-            },
-          ],
-        };
-      }
-  
-      const formattedAlerts = features.map(formatAlert);
-      const alertsText = `Active alerts for ${stateCode}:\n\n${formattedAlerts.join("\n")}`;
-  
+  "get-nutrition",
+  "Get nutrition facts for any food or meal",
+  {
+    query: z.string().describe("Food item(s) to analyze (e.g. '1lb brisket and fries')"),
+  },
+  async ({ query }) => {
+    // If API key is missing, return a helpful message instead of failing the whole server.
+    if (!API_KEY) {
       return {
         content: [
           {
             type: "text",
-            text: alertsText,
+            text: "Error: Missing API_NINJAS_KEY environment variable. Please set this env var to use the nutrition API.",
           },
         ],
       };
-    },
-  );
-  
-  server.tool(
-    "get-forecast",
-    "Get weather forecast for a location",
-    {
-      latitude: z.number().min(-90).max(90).describe("Latitude of the location"),
-      longitude: z.number().min(-180).max(180).describe("Longitude of the location"),
-    },
-    async ({ latitude, longitude }) => {
-      // Get grid point data
-      const pointsUrl = `${NWS_API_BASE}/points/${latitude.toFixed(4)},${longitude.toFixed(4)}`;
-      const pointsData = await makeNWSRequest<PointsResponse>(pointsUrl);
-  
-      if (!pointsData) {
-        return {
-          content: [
-            {
-              type: "text",
-              text: `Failed to retrieve grid point data for coordinates: ${latitude}, ${longitude}. This location may not be supported by the NWS API (only US locations are supported).`,
-            },
-          ],
-        };
-      }
-  
-      const forecastUrl = pointsData.properties?.forecast;
-      if (!forecastUrl) {
-        return {
-          content: [
-            {
-              type: "text",
-              text: "Failed to get forecast URL from grid point data",
-            },
-          ],
-        };
-      }
-  
-      // Get forecast data
-      const forecastData = await makeNWSRequest<ForecastResponse>(forecastUrl);
-      if (!forecastData) {
-        return {
-          content: [
-            {
-              type: "text",
-              text: "Failed to retrieve forecast data",
-            },
-          ],
-        };
-      }
-  
-      const periods = forecastData.properties?.periods || [];
-      if (periods.length === 0) {
-        return {
-          content: [
-            {
-              type: "text",
-              text: "No forecast periods available",
-            },
-          ],
-        };
-      }
-  
-      // Format forecast periods
-      const formattedForecast = periods.map((period: ForecastPeriod) =>
-        [
-          `${period.name || "Unknown"}:`,
-          `Temperature: ${period.temperature || "Unknown"}°${period.temperatureUnit || "F"}`,
-          `Wind: ${period.windSpeed || "Unknown"} ${period.windDirection || ""}`,
-          `${period.shortForecast || "No forecast available"}`,
-          "---",
-        ].join("\n"),
-      );
-  
-      const forecastText = `Forecast for ${latitude}, ${longitude}:\n\n${formattedForecast.join("\n")}`;
-  
-      return {
-        content: [
-          {
-            type: "text",
-            text: forecastText,
-          },
-        ],
-      };
-    },
-  );
+    }
 
-  async function main() {
-    const transport = new StdioServerTransport();
-    await server.connect(transport);
-    console.error("Weather MCP Server running on stdio");
+    const data = await makeNutritionRequest<NutritionItem[]>(query);
+
+    if (!data || data.length === 0) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: "No nutrition data found or request failed.",
+          },
+        ],
+      };
+    }
+
+    const formatted = data.map(formatNutrition).join("\n");
+    const responseText = ` sree's Nutrition analysis for: "${query}"\n\n${formatted}`;
+
+    return {
+      content: [
+        {
+          type: "text",
+          text: responseText,
+        },
+      ],
+    };
+  },
+);
+
+// Start server
+async function main() {
+  if (!API_KEY) {
+    console.error(
+      "Warning: Missing API_NINJAS_KEY environment variable. The server will start, but the nutrition tool will return an explanatory message until the key is provided."
+    );
   }
-  
-  main().catch((error) => {
-    console.error("Fatal error in main():", error);
-    process.exit(1);
-  });
+
+  const transport = new StdioServerTransport();
+  await server.connect(transport);
+  console.error("Nutrition MCP Server running on stdio");
+}
+
+main().catch((error) => {
+  console.error("Fatal error in main():", error);
+  process.exit(1);
+});
