@@ -4,7 +4,7 @@
   "main": "index.js",
   "type": "module",
   "bin": {
-    "nutrition": "./build/index.js"
+    "nutrition": "build/index.js"
   },
   "scripts": {
     "build": "tsc && chmod 755 build/index.js"
@@ -15,7 +15,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "",
+  "description": "A ready-to-use implementation of the Model Context Protocol (MCP) that extends Claude with real-time weather data capabilities.",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.21.0",
     "zod": "^3.24.2"
