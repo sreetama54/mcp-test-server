@@ -1,0 +1,154 @@
+{
+  "grains": [
+    {
+      "name": "Rice (White)",
+      "amino_acids": {
+        "leucine": 0.91,
+        "lysine": 0.30,
+        "isoleucine": 0.41,
+        "valine": 0.59,
+        "threonine": 0.36,
+        "methionine": 0.17,
+        "phenylalanine": 0.61,
+        "tryptophan": 0.10,
+        "histidine": 0.25,
+        "tyrosine": 0.36
+      }
+    },
+    {
+      "name": "Corn (Maize)",
+      "amino_acids": {
+        "leucine": 1.27,
+        "lysine": 0.22,
+        "isoleucine": 0.40,
+        "valine": 0.51,
+        "threonine": 0.34,
+        "methionine": 0.18,
+        "phenylalanine": 0.53,
+        "tryptophan": 0.06,
+        "histidine": 0.28,
+        "tyrosine": 0.43
+      }
+    },
+    {
+      "name": "Oats",
+      "amino_acids": {
+        "leucine": 1.29,
+        "lysine": 0.66,
+        "isoleucine": 0.66,
+        "valine": 0.88,
+        "threonine": 0.57,
+        "methionine": 0.30,
+        "phenylalanine": 0.95,
+        "tryptophan": 0.24,
+        "histidine": 0.42,
+        "tyrosine": 0.67
+      }
+    },
+    {
+      "name": "Barley",
+      "amino_acids": {
+        "leucine": 0.68,
+        "lysine": 0.34,
+        "isoleucine": 0.41,
+        "valine": 0.54,
+        "threonine": 0.36,
+        "methionine": 0.17,
+        "phenylalanine": 0.55,
+        "tryptophan": 0.14,
+        "histidine": 0.24,
+        "tyrosine": 0.36
+      }
+    },
+    {
+      "name": "Sorghum (Jowar)",
+      "amino_acids": {
+        "leucine": 1.38,
+        "lysine": 0.23,
+        "isoleucine": 0.39,
+        "valine": 0.57,
+        "threonine": 0.31,
+        "methionine": 0.18,
+        "phenylalanine": 0.75,
+        "tryptophan": 0.14,
+        "histidine": 0.25,
+        "tyrosine": 0.37
+      }
+    },
+    {
+      "name": "Pearl Millet (Bajra)",
+      "amino_acids": {
+        "leucine": 1.64,
+        "lysine": 0.27,
+        "isoleucine": 0.59,
+        "valine": 0.81,
+        "threonine": 0.40,
+        "methionine": 0.25,
+        "phenylalanine": 0.88,
+        "tryptophan": 0.20,
+        "histidine": 0.33,
+        "tyrosine": 0.43
+      }
+    },
+    {
+      "name": "Finger Millet (Ragi)",
+      "amino_acids": {
+        "leucine": 1.76,
+        "lysine": 0.22,
+        "isoleucine": 0.41,
+        "valine": 0.77,
+        "threonine": 0.35,
+        "methionine": 0.14,
+        "phenylalanine": 0.92,
+        "tryptophan": 0.11,
+        "histidine": 0.24,
+        "tyrosine": 0.39
+      }
+    },
+    {
+      "name": "Quinoa",
+      "amino_acids": {
+        "leucine": 0.83,
+        "lysine": 0.76,
+        "isoleucine": 0.55,
+        "valine": 0.70,
+        "threonine": 0.38,
+        "methionine": 0.27,
+        "phenylalanine": 0.67,
+        "tryptophan": 0.09,
+        "histidine": 0.33,
+        "tyrosine": 0.31
+      }
+    },
+    {
+      "name": "Rye",
+      "amino_acids": {
+        "leucine": 0.80,
+        "lysine": 0.32,
+        "isoleucine": 0.47,
+        "valine": 0.63,
+        "threonine": 0.40,
+        "methionine": 0.17,
+        "phenylalanine": 0.58,
+        "tryptophan": 0.13,
+        "histidine": 0.27,
+        "tyrosine": 0.37
+      }
+    },
+    {
+      "name": "Buckwheat",
+      "amino_acids": {
+        "leucine": 1.07,
+        "lysine": 0.67,
+        "isoleucine": 0.53,
+        "valine": 0.71,
+        "threonine": 0.44,
+        "methionine": 0.21,
+        "phenylalanine": 0.77,
+        "tryptophan": 0.19,
+        "histidine": 0.37,
+        "tyrosine": 0.44
+      }
+    }
+  ]
+}
